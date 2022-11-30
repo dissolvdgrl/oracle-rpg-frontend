@@ -1,17 +1,27 @@
 <template>
-  <div class="container mx-auto">
+  <div>
     <Title>Home — {{ metaTitle }}</Title>
-    <h1 class="font-bold text-gray-600 text-3xl mb-8">Home page</h1>
-    <div class="grid grid-cols-3 gap-16 w-2/3 mx-auto">
-        <PostItem v-for="post in posts.data.posts.edges" :post="post"></PostItem>
+    <PageHeader
+        header="Guides and resources for playing solo tabletop roleplaying games"
+        subHeader="Welcome to Oracle RPG"
+    />
+    <div class="container mx-auto mt-24">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 w-2/3 mx-auto">
+          <div v-if="pending">
+            <p>Loading posts...</p>
+          </div>
+          <PostItem v-for="post in posts.data.posts.edges" :post="post"></PostItem>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 const metaTitle = useState('title');
-const { data:posts } = await useFetch(
-    'http://oracle-rpg.test/graphql',
+const config = useRuntimeConfig();
+
+const { pending, data: posts } = await useFetch(
+    config.wpUrl,
     {
       method: 'POST',
       headers: {
@@ -34,6 +44,8 @@ const { data:posts } = await useFetch(
                 title
                 date
                 uri
+                slug
+                excerpt
                 featuredImage {
                   node {
                     mediaItemUrl
